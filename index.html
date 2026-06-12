@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostureGuard AI Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <div style="font-size: 1.2rem; font-weight: 600;">Loading AI Suite...</div>
+    </div>
+
+    <!-- Modals -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--accent-color)">Hourly Posture Report</h2>
+            <div id="report-details" style="font-size: 1.2rem; margin: 20px 0; line-height: 1.6;"></div>
+            <button id="close-report">Continue Working</button>
+        </div>
+    </div>
+
+    <div id="stretch-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--good-color)">Time to Stretch! 🧘</h2>
+            <div id="stretch-suggestion" style="font-size: 1.3rem; margin: 20px 0; line-height: 1.6;"></div>
+            <p style="color: #888; margin-bottom: 20px;">Take 30 seconds to move your body.</p>
+            <button id="close-stretch">I'm Refreshed!</button>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--accent-color)">App Settings</h2>
+            <div style="text-align: left; margin: 20px 0;">
+                <div class="settings-row">
+                    <span>Sensitivity:</span>
+                    <select id="setting-sensitivity">
+                        <option value="zen">Zen (Relaxed)</option>
+                        <option value="balanced" selected>Balanced</option>
+                        <option value="strict">Strict (Precise)</option>
+                    </select>
+                </div>
+                <div class="settings-row">
+                    <span>Active Start Hour (0-23):</span>
+                    <input type="number" id="setting-start" value="9">
+                </div>
+                <div class="settings-row">
+                    <span>Active End Hour (0-23):</span>
+                    <input type="number" id="setting-end" value="17">
+                </div>
+            </div>
+            <button id="save-settings">Save & Close</button>
+        </div>
+    </div>
+
+    <div id="main-container">
+        <div id="canvas-container">
+            <div id="heartbeat"><div class="dot" id="status-dot"></div> AI STATUS: <span id="status-text">OFFLINE</span></div>
+            <div id="status-banner">Waiting...</div>
+            <canvas id="webcam-canvas"></canvas>
+        </div>
+
+        <div id="sidebar">
+            <div class="stat-card" style="text-align: center;">
+                <span class="stat-label">Posture Score</span>
+                <span id="score-value">--</span>
+                <div class="chart-container"><canvas id="scoreChart"></canvas></div>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Session Quality</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 10px;">
+                    <span>Good: <b id="good-pct">0%</b></span>
+                    <span>Bad: <b id="bad-pct">0%</b></span>
+                </div>
+                <div class="progress-container">
+                    <div id="good-progress"></div>
+                    <div id="bad-progress"></div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Achievement Badges</span>
+                <div class="badges-grid">
+                    <div class="badge" id="badge-first" title="First Calibration">✨</div>
+                    <div class="badge" id="badge-streak" title="3 Day Streak">🔥</div>
+                    <div class="badge" id="badge-perfect" title="Perfect Hour">💎</div>
+                    <div class="badge" id="badge-warrior" title="10 Hours Monitored">🛡️</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="calibrate-btn" style="flex: 2;">Calibrate</button>
+                <button id="open-settings" style="flex: 1; background: #444; color: white;">⚙️</button>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Live Sensors</span>
+                <div id="sensor-list" style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; color: #aaa;">
+                    <div id="s-neck">Neck Tilt: --</div>
+                    <div id="s-head">Forward Head: --</div>
+                    <div id="s-shoulder">Symmetry: --</div>
+                    <div id="s-spine">Spine Lean: --</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
