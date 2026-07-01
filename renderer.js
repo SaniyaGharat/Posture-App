@@ -13,6 +13,9 @@ const badProgressBar = document.getElementById('bad-progress');
 const statusDot = document.getElementById('status-dot');
 const statusText = document.getElementById('status-text');
 const loadingScreen = document.getElementById('loading');
+const startCameraBtn = document.getElementById('start-camera');
+
+document.getElementById('calibrate-btn').disabled = true;
 
 let baseline = null, totalFrames = 0, goodFrames = 0, badFrames = 0;
 let lastSpeechTime = 0, scoreHistory = [], lastLandmarks = null, sessionStartTime = Date.now();
@@ -200,6 +203,8 @@ pose.onResults(onResults);
 async function startCamera() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+        startCameraBtn.disabled = true;
+        startCameraBtn.innerText = 'Starting...';
         videoElement.srcObject = stream;
         videoElement.play();
 
@@ -207,6 +212,8 @@ async function startCamera() {
             canvasElement.width = videoElement.videoWidth;
             canvasElement.height = videoElement.videoHeight;
             loadingScreen.style.display = 'none';
+            startCameraBtn.style.display = 'none';
+            document.getElementById('calibrate-btn').disabled = false;
 
             // INSTEAD OF setInterval, we listen to the Main Process "Heartbeat"
             if (window.electronAPI) {
@@ -219,11 +226,14 @@ async function startCamera() {
             }
         };
     } catch (err) {
-        loadingScreen.innerHTML = `<div style="color: #f44336; text-align: center; padding: 20px;"><h2>CAMERA ERROR</h2><p>${err.message}</p><button onclick="location.reload()">Retry</button></div>`;
+        startCameraBtn.disabled = false;
+        startCameraBtn.innerText = 'Start Camera';
+        const errorMessage = err.message || err.name || 'Unable to access camera';
+        loadingScreen.innerHTML = `<div style="color: #f44336; text-align: center; padding: 20px;"><h2>CAMERA ERROR</h2><p>${errorMessage}</p><button onclick="location.reload()">Retry</button></div>`;
     }
 }
 
-startCamera();
+startCameraBtn.onclick = startCamera;
 
 document.getElementById('calibrate-btn').onclick = () => {
     if (!lastLandmarks) return alert('No pose detected.');
